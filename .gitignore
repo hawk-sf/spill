@@ -1,0 +1,6 @@
+*.pyc
+*.log
+*.sublime-*
+tmp/
+build/
+dist/
