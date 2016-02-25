@@ -1,0 +1,25 @@
+import unittest
+from   app import create_app, db, models
+
+
+class TestCase(unittest.TestCase):
+    def setUp(self):
+        self.app         = create_app('testing')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        self.client = self.app.test_client()
+
+        # Create test data
+    {% if db.orm == 'sqlalchemy' %}
+        db.create_all()
+        data = models
+        db.session.add(data)
+        db.session.commit()
+    {% endif %}
+
+    def tearDown(self):
+    {% if db.orm == 'sqlalchemy' %}
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+    {% endif %}

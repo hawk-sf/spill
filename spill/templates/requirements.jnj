@@ -1,0 +1,14 @@
+Flask
+{% if db.orm == 'sqlalchemy' %}
+Flask-Migrate
+Flask-SQLAlchemy
+{% if db.orm == 'mongoengine' %}
+flask-mongoengine
+{% endif %}
+Flask-Script
+{% if forms %}
+Flask-WTF
+{% endif %}
+{% if templates %}
+Jinja2
+{% endif %}

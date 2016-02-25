@@ -1,0 +1,79 @@
+import os
+
+base_dir = os.path.abspath(os.path.dirname(__file__))
+
+CSRF_ENABLED = True
+DB_PASSWORD  = os.environ.get('DB_PASS') or ''
+
+{% set project_name =  name|replace(" ", "_")%}
+
+class Config:
+{% if db.orm == 'sqlalchemy' %}
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+{% endif %}
+    SECRET_KEY                    = os.environ.get('SECRET_KEY') or \
+                                    'replace me with a secret'
+
+    @staticmethod
+    def init_app(app):
+        pass
+
+
+class DevelopmentConfig(Config):
+    DEBUG                   = True
+{% if db.orm == 'sqlalchemy' %}
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DB_URL') or \
+                            {% if db.type == 'sqlite' %}
+                              'sqlite:///' + os.path.join(base_dir, '{{ project_name }}_dev.sqlite')
+                            {% elif db.type == 'mysql' %}
+                              'mysql://root:%s@localhost/{{ project_name }}_dev?charset=utf8' % DB_PASSWORD
+                            {% endif %}
+{% elif db.orm == 'mongoengine' %}
+    MONGODB_SETTINGS = {
+                        "DB"   : "{{ project_name }}_dev",
+                        "HOST" : "localhost",
+                        "PORT" : 27017
+                       }
+{% endif %}
+    
+
+
+class TestingConfig(Config):
+{% if db.orm == 'sqlalchemy' %}
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DB_URL') or \
+                            {% if db.type == 'sqlite' %}
+                              'sqlite:///' + os.path.join(base_dir, '{{ project_name }}_test.sqlite')
+                            {% elif db.type == 'mysql' %}
+                              'mysql://root:%s@localhost/{{ project_name }}_test?charset=utf8' % DB_PASSWORD
+                            {% endif %}
+{% elif db.orm == 'mongoengine' %}
+    MONGODB_SETTINGS = {
+                        "DB"   : "{{ project_name }}_test",
+                        "HOST" : "localhost",
+                        "PORT" : 27017
+                       }
+{% endif %}
+
+
+class ProductionConfig(Config):
+{% if db.orm == 'sqlalchemy' %}
+    SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DB_URL') or \
+                            {% if db.type == 'sqlite' %}
+                              'sqlite:///' + os.path.join(base_dir, '{{ project_name }}_prod.sqlite')
+                            {% elif db.type == 'mysql' %}
+                              'mysql://root:%s@localhost/{{ project_name }}_prod?charset=utf8' % DB_PASSWORD
+                            {% endif %}
+{% elif db.orm == 'mongoengine' %}
+    MONGODB_SETTINGS = {
+                        "DB"   : "{{ project_name }}_prod",
+                        "HOST" : "localhost",
+                        "PORT" : 27017
+                       }
+{% endif %}
+
+config = {
+          'development': DevelopmentConfig,
+          'production':  ProductionConfig,
+          'testing':     TestingConfig,
+          'default':     DevelopmentConfig,
+         }

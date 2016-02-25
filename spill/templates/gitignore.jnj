@@ -1,0 +1,9 @@
+*.pyc
+*.log
+*.db
+*.sqlite
+*.pid
+*.sock
+tmp/
+build/
+dist/
