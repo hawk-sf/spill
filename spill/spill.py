@@ -65,11 +65,13 @@ class Project(Scaffold):
     """
     A Flask project, composed of an app, a database, and tests.
     """
-    def __init__(self, project_directory, db_type, orm, *blueprints):
+    def __init__(self, project_directory, *blueprints, **kwargs):
         super(Project, self).__init__(project_directory)
-        self.name = os.path.basename(self.directory)
+        self.name      = os.path.basename(self.directory)
+        self.forms     = kwargs.get('forms')
+        self.templates = kwargs.get('templates')
         self.initialize_app(*blueprints)
-        self.initialize_db(db_type, orm)
+        self.initialize_db(kwargs.get('db_type'), kwargs.get('orm'))
 
     @property
     def app(self):
@@ -116,7 +118,10 @@ class Project(Scaffold):
                              project = self.as_dict())
 
     def create_requirements(self):
-        pass
+        requirements_txt = os.path.join(self.directory, 'requirements.txt')
+        self._write_template('requirements.jnj',
+                             requirements_txt,
+                             project = self.as_dict())
 
     def create_boilerplate(self):
         pass
@@ -126,9 +131,11 @@ class Project(Scaffold):
 
     def as_dict(self):
         return {
-                'name': self.name,
-                'db':   self.db.as_dict(),
-                'app':  self.app.as_dict()
+                'name':      self.name,
+                'db':        self.db.as_dict(),
+                'app':       self.app.as_dict(),
+                'forms':     self.forms,
+                'templates': self.templates
                }
 
 
