@@ -104,7 +104,10 @@ class Project(Scaffold):
                              project = self.as_dict())
 
     def create_manage_py(self):
-        pass
+        manage_py = os.path.join(self.directory, 'manage.py')
+        self._write_template('manage.jnj',
+                             manage_py,
+                             project = self.as_dict())
 
     def create_readme(self):
         pass

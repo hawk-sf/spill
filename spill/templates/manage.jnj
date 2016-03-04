@@ -3,10 +3,9 @@
 import os
 from   app               import create_app, db, models
 from   flask.ext.script  import Manager, Shell
-{% if db.orm == 'sqlalchemy' %}
+{% if project.db.orm == 'sqlalchemy' %}
 from   flask.ext.migrate import Migrate, MigrateCommand
 {% endif %}
-
 
 
 app     = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -18,11 +17,12 @@ def make_shell_context():
     return dict(app=app, db=db, models=models)
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
-{% if db.orm == 'sqlalchemy' %}
+{% if project.db.orm == 'sqlalchemy' %}
 manager.add_command('db',    MigrateCommand)
 {% endif %}
 
-{% if db.orm == 'sqlalchemy' %}
+
+{% if project.db.orm == 'sqlalchemy' %}
 @manager.command
 def deploy():
     """
