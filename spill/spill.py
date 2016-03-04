@@ -17,7 +17,9 @@ def mkdirs(new_directory, mode=0755):
             raise
 
 
-JINJA_ENV      = Environment(loader=PackageLoader('spill', 'templates'))
+JINJA_ENV      = Environment(loader        = PackageLoader('spill', 'templates'),
+                             trim_blocks   = True,
+                             lstrip_blocks = True)
 SUPPORTED_DBS  = ['sqlite', 'mysql', 'mongo']
 SUPPORTED_ORMS = ['sqlalchemy', 'mongoengine']
 
