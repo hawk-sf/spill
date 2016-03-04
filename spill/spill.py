@@ -98,7 +98,10 @@ class Project(Scaffold):
                              project = self.as_dict())
 
     def create_gitignore(self):
-        pass
+        gitignore = os.path.join(self.directory, '.gitignore')
+        self._write_template('gitignore.jnj',
+                             gitignore,
+                             project = self.as_dict())
 
     def create_manage_py(self):
         pass
