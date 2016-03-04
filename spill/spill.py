@@ -110,7 +110,10 @@ class Project(Scaffold):
                              project = self.as_dict())
 
     def create_readme(self):
-        pass
+        readme_md = os.path.join(self.directory, 'README.md')
+        self._write_template('readme.jnj',
+                             readme_md,
+                             project = self.as_dict())
 
     def create_requirements(self):
         pass
