@@ -1,5 +1,6 @@
 import os
 import errno
+import weakref
 import argparse    as ap
 from   jinja2      import Environment, PackageLoader
 from   collections import MutableSequence
@@ -67,11 +68,13 @@ class Project(Scaffold):
     """
     def __init__(self, project_directory, *blueprints, **kwargs):
         super(Project, self).__init__(project_directory)
-        self.name      = os.path.basename(self.directory)
-        self.forms     = kwargs.get('forms')
-        self.templates = kwargs.get('templates')
-        self.initialize_app(*blueprints)
-        self.initialize_db(kwargs.get('db_type'), kwargs.get('orm'))
+        self.name       = os.path.basename(self.directory)
+        self.forms      = kwargs.get('forms')
+        self.templates  = kwargs.get('templates')
+        self.blueprints = blueprints
+        self.config     = kwargs
+        self.initialize_db()
+        self.initialize_app()
 
     @property
     def app(self):
@@ -87,11 +90,27 @@ class Project(Scaffold):
     def app(self):
         del self._app
 
-    def initialize_app(self, *blueprints):
-        self.app = App(self.directory, *blueprints)
+    @property
+    def db(self):
+        return self._db
 
-    def initialize_db(self, db_type, orm):
-        self.db = Database(self.directory, db_type, orm)
+    @db.setter
+    def db(self, db):
+        if type(db) is not Database:
+            raise TypeError("Object must be of type 'spill.Database'")
+        self._db = db
+
+    @db.deleter
+    def db(self):
+        del self._db
+
+    def initialize_app(self):
+        self.app = App(self, *self.blueprints)
+
+    def initialize_db(self):
+        self.db = Database(self,
+                           db_type = self.config.get('db_type'),
+                           orm     = self.config.get('orm'))
 
     def create_config_py(self):
         config_py = os.path.join(self.directory, 'config.py')
@@ -124,7 +143,11 @@ class Project(Scaffold):
                              project = self.as_dict())
 
     def create_boilerplate(self):
-        pass
+        self.create_config_py()
+        self.create_gitignore()
+        self.create_manage_py()
+        self.create_readme()
+        self.create_requirements()
 
     def create(self):
         pass
@@ -143,16 +166,40 @@ class App(Scaffold):
     """
     The Flask application linked to a Project.
     """
-    def __init__(self, directory, *blueprints):
-        app_directory = os.path.join(directory, 'app')
+    def __init__(self, project, *blueprints, **kwargs):
+        self.project  = weakref.ref(project)
+        app_directory = os.path.join(project.directory, 'app')
         super(App, self).__init__(app_directory)
         self.blueprints = BlueprintList()
         for b in blueprints:
             blue = self.initalize_blueprint(b)
             self.blueprints.append(blue)
 
+    @property
+    def project(self):
+        return self._project()
+
+    @project.setter
+    def project(self, project):
+        if type(project()) is not Project:
+            raise TypeError("Object must be of type 'spill.Project'")
+        self._project = project
+
+    @project.deleter
+    def project(self):
+        del self._project
+
     def initalize_blueprint(self, blueprint_name):
         return Blueprint(self.directory, blueprint_name)
+
+    def create_init(self):
+        app_init_py = os.path.join(self.directory, '__init__.py')
+        self._write_template('app_init.jnj',
+                             app_init_py,
+                             project = self.project.as_dict())
+
+    def create_models(self):
+        pass
 
     def create(self):
         pass
@@ -224,13 +271,28 @@ class Database(Scaffold):
     """
     The database linked to a Project.
     """
-    def __init__(self, project_directory, db_type, orm):
-        super(Database, self).__init__(project_directory)
-        self.type = db_type.lower()
-        self.orm  = orm.lower()
+    def __init__(self, project, **kwargs):
+        self.project  = weakref.ref(project)
+        super(Database, self).__init__(project.directory)
+        self.type = kwargs.get('db_type').lower()
+        self.orm  = kwargs.get('orm').lower()
 
     def __repr__(self):
         return "Database(type=%s, orm=%s)" % (self.type, self.orm)
+
+    @property
+    def project(self):
+        return self._project()
+
+    @project.setter
+    def project(self, project):
+        if type(project()) is not Project:
+            raise TypeError("Object must be of type 'spill.Project'")
+        self._project = project
+
+    @project.deleter
+    def project(self):
+        del self._project
 
     @property
     def type(self):
