@@ -1,14 +1,14 @@
-from flask                import Flask
-{% if db.orm == 'sqlalchemy' %}
+from flask import Flask
+{% if project.db.orm == 'sqlalchemy' %}
 from flask.ext.sqlalchemy import SQLAlchemy
-{% elif db.orm == 'mongoengine' %}
+{% elif project.db.orm == 'mongoengine' %}
 from flask.ext.mongoengine import MongoEngine
 {% endif %}
-from config               import config
+from config import config
 
-{% if db.orm == 'sqlalchemy' %}
+{% if project.db.orm == 'sqlalchemy' %}
 db = SQLAlchemy()
-{% elif db.orm == 'mongoengine' %}
+{% elif project.db.orm == 'mongoengine' %}
 db = MongoEngine(app)
 {% endif %}
 
@@ -19,7 +19,7 @@ def create_app(config_name):
 
     db.init_app(app)
 
-{% for b in blueprints %}
+{% for b in project.app.blueprints %}
     from {{ b.name }} import {{ b.name }} as {{ b.name }}_blueprint
     app.register_blueprint({{ b.name }}_blueprint)
 {% endfor %}

@@ -199,7 +199,10 @@ class App(Scaffold):
                              project = self.project.as_dict())
 
     def create_models(self):
-        pass
+        models_py = os.path.join(self.directory, 'models.py')
+        self._write_template('models.jnj',
+                             models_py,
+                             project = self.project.as_dict())
 
     def create(self):
         pass
