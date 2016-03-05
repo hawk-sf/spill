@@ -34,6 +34,9 @@ setup(
     author='James Hawkins',
     author_email='jameshawkins.sf@gmail.com',
 
+    # Choose your license
+    license='MIT',
+
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         # How mature is this project? Common values are
