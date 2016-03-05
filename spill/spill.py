@@ -119,7 +119,7 @@ class Project(Scaffold):
     def initialize_db(self):
         self.db = Database(self,
                            db_type = self.config.get('db_type'),
-                           orm     = self.config.get('orm'))
+                           db_orm  = self.config.get('db_orm'))
 
     def create_config_py(self):
         config_py = os.path.join(self.directory, 'config.py')
@@ -254,7 +254,7 @@ class Blueprint(Scaffold):
                }
 
     def create_init(self):
-        blueprint_init_py = os.path.join(self.directory, 'init.py')
+        blueprint_init_py = os.path.join(self.directory, '__init__.py')
         self._write_template('blueprint_init.jnj',
                              blueprint_init_py,
                              blueprint = self.as_dict())
@@ -322,8 +322,8 @@ class Database(Scaffold):
     def __init__(self, project, **kwargs):
         self.project  = weakref.ref(project)
         super(Database, self).__init__(project.directory)
-        self.type = kwargs.get('db_type').lower()
-        self.orm  = kwargs.get('orm').lower()
+        self.type = kwargs.get('db_type')
+        self.orm  = kwargs.get('db_orm')
 
     def __repr__(self):
         return "Database(type=%s, orm=%s)" % (self.type, self.orm)
@@ -348,8 +348,10 @@ class Database(Scaffold):
 
     @type.setter
     def type(self, db_type):
-        if db_type not in SUPPORTED_DBS:
-            raise Exception('Unsupported database type: %s', db_type)
+        if db_type is not None:
+            if db_type not in SUPPORTED_DBS:
+                raise Exception('Unsupported database type: %s', db_type)
+            db_type = db_type.lower()
         self._type = db_type
 
     @type.deleter
@@ -362,8 +364,10 @@ class Database(Scaffold):
 
     @orm.setter
     def orm(self, orm):
-        if orm not in SUPPORTED_ORMS:
-            raise Exception('Unsupported orm: %s', orm)
+        if orm is not None:
+            if orm not in SUPPORTED_ORMS:
+                raise Exception('Unsupported orm: %s', orm)
+            orm = orm.lower()
         self._orm = orm
 
     @orm.deleter
@@ -384,18 +388,59 @@ class Test(object):
         self.arg = arg
 
 
-def set_up_args(self):
-    # Set up argument parsing
-    parser = ap.ArgumentParser(description =
-    """
+def set_up_args():
+    parser = ap.ArgumentParser(formatter_class = ap.RawDescriptionHelpFormatter,
+                               description     = """\
+Creates scaffolding and boilerplate for a Flask application.
 
-    """)
+./<project>/
+\t|-- .gitignore
+\t|-- config.py
+\t|-- manage.py
+\t|-- README.md
+\t|-- requirements.py
+\t|-- /app
+\t\t|-- __init__.py
+\t\t|-- models.py
+\t\t|-- /<blueprint_1>
+\t\t\t|-- __init__.py
+\t\t\t|-- errors.py
+\t\t\t|-- views.py
+\t\t|-- /<blueprint_2>
+\t\t\t|-- __init__.py
+\t\t\t|-- errors.py
+\t\t\t|-- views.py
+""")
+
     parser.add_argument('project',
-                        nargs   = '?',
-                        default = None,
-                        help    = """Flask project to spill.""")
+                        default = '.',
+                        help    = "Name of Flask project to spill. If no project specified, will assume CWD is the project directory.")
     parser.add_argument('-b', '--blueprints',
                         nargs = '+',
                         dest  = 'blueprints',
                         help  = "A list of blueprints to create")
+    parser.add_argument('--db-type',
+                        dest    = 'db_type',
+                        nargs   = '?',
+                        choices = SUPPORTED_DBS,
+                        help    = "The type of database you will use")
+    parser.add_argument('--db-orm',
+                        dest    = 'db_orm',
+                        nargs   = '?',
+                        choices = SUPPORTED_ORMS,
+                        help    = "The ORM you will use")
     return parser.parse_args()
+
+
+def main():
+    args = set_up_args()
+
+    project = Project(args.project,
+                      *args.blueprints,
+                      db_type = args.db_type,
+                      db_orm  = args.db_orm)
+    project.spill()
+
+
+if __name__ == '__main__':
+    main()
