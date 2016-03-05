@@ -190,7 +190,7 @@ class App(Scaffold):
         del self._project
 
     def initalize_blueprint(self, blueprint_name):
-        return Blueprint(self.directory, blueprint_name)
+        return Blueprint(self, blueprint_name)
 
     def create_init(self):
         app_init_py = os.path.join(self.directory, '__init__.py')
@@ -218,9 +218,42 @@ class Blueprint(Scaffold):
     """
     A Flask blueprint, associated with an App.
     """
-    def __init__(self, app_directory, name):
-        blueprint_directory = os.path.join(app_directory, name)
+    def __init__(self, app, name):
+        self.app            = weakref.ref(app)
+        blueprint_directory = os.path.join(app.directory, name)
         super(Blueprint, self).__init__(blueprint_directory)
+
+    @property
+    def app(self):
+        return self._app()
+
+    @app.setter
+    def app(self, app):
+        if type(app()) is not App:
+            raise TypeError("Object must be of type 'spill.App'")
+        self._app = app
+
+    @app.deleter
+    def app(self):
+        del self._app
+
+    def create_init(self):
+        blueprint_init_py = os.path.join(self.directory, 'init.py')
+        self._write_template('blueprint_init.jnj',
+                             blueprint_init_py,
+                             blueprint = self.as_dict())
+
+    def create_errors(self):
+        blueprint_errors_py = os.path.join(self.directory, 'errors.py')
+        self._write_template('blueprint_errors.jnj',
+                             blueprint_errors_py,
+                             blueprint = self.as_dict())
+
+    def create_views(self):
+        blueprint_views_py = os.path.join(self.directory, 'views.py')
+        self._write_template('blueprint_views.jnj',
+                             blueprint_views_py,
+                             blueprint = self.as_dict())
 
     def create(self):
         pass
