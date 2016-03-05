@@ -1,6 +1,7 @@
 *.pyc
 *.log
 *.sublime-*
+*.egg-info/
 tmp/
 build/
 dist/
