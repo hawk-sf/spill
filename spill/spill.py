@@ -58,7 +58,7 @@ class Scaffold(object):
         with open(output_file, 'w') as f:
             f.write(output)
 
-    def create(self):
+    def spill(self):
         raise NotImplementedError
 
 
@@ -104,6 +104,15 @@ class Project(Scaffold):
     def db(self):
         del self._db
 
+    def as_dict(self):
+        return {
+                'name':      self.name,
+                'db':        self.db.as_dict(),
+                'app':       self.app.as_dict(),
+                'forms':     self.forms,
+                'templates': self.templates
+               }
+
     def initialize_app(self):
         self.app = App(self, *self.blueprints)
 
@@ -142,24 +151,16 @@ class Project(Scaffold):
                              requirements_txt,
                              project = self.as_dict())
 
-    def create_boilerplate(self):
+    def _spill_boilerplate(self):
         self.create_config_py()
         self.create_gitignore()
         self.create_manage_py()
         self.create_readme()
         self.create_requirements()
 
-    def create(self):
-        pass
-
-    def as_dict(self):
-        return {
-                'name':      self.name,
-                'db':        self.db.as_dict(),
-                'app':       self.app.as_dict(),
-                'forms':     self.forms,
-                'templates': self.templates
-               }
+    def spill(self):
+        self._spill_boilerplate()
+        self.app.spill()
 
 
 class App(Scaffold):
@@ -189,6 +190,12 @@ class App(Scaffold):
     def project(self):
         del self._project
 
+    def as_dict(self):
+        return {
+                'directory': self.directory,
+                'blueprints': [b.as_dict() for b in self.blueprints]
+               }
+
     def initalize_blueprint(self, blueprint_name):
         return Blueprint(self, blueprint_name)
 
@@ -204,14 +211,17 @@ class App(Scaffold):
                              models_py,
                              project = self.project.as_dict())
 
-    def create(self):
-        pass
+    def _spill_boilerplate(self):
+        self.create_init()
+        self.create_models()
 
-    def as_dict(self):
-        return {
-                'directory': self.directory,
-                'blueprints': [b.as_dict() for b in self.blueprints]
-               }
+    def _spill_blueprints(self):
+        for blue in self.blueprints:
+            blue.spill()
+
+    def spill(self):
+        self._spill_boilerplate()
+        self._spill_blueprints()
 
 
 class Blueprint(Scaffold):
@@ -237,6 +247,12 @@ class Blueprint(Scaffold):
     def app(self):
         del self._app
 
+    def as_dict(self):
+        return {
+                'name':      self.name,
+                'directory': self.directory
+               }
+
     def create_init(self):
         blueprint_init_py = os.path.join(self.directory, 'init.py')
         self._write_template('blueprint_init.jnj',
@@ -255,14 +271,10 @@ class Blueprint(Scaffold):
                              blueprint_views_py,
                              blueprint = self.as_dict())
 
-    def create(self):
-        pass
-
-    def as_dict(self):
-        return {
-                'name':      self.name,
-                'directory': self.directory
-               }
+    def spill(self):
+        self.create_init()
+        self.create_errors()
+        self.create_views()
 
 
 class BlueprintList(MutableSequence):
