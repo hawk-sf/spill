@@ -74,6 +74,8 @@ class Project(Scaffold):
         self.forms      = kwargs.get('forms')
         self.templates  = kwargs.get('templates')
         self.config     = kwargs
+        if self.templates:
+            self.initialize_templates()
         self.initialize_db()
         self.initialize_app()
 
@@ -114,6 +116,9 @@ class Project(Scaffold):
                 'forms':     self.forms,
                 'templates': self.templates
                }
+
+    def initialize_templates(self):
+        mkdirs(os.path.join(self.directory, 'templates'))
 
     def initialize_app(self):
         self.app = App(self, *self.blueprints)
@@ -273,6 +278,13 @@ class Blueprint(Scaffold):
         blueprint_views_py = os.path.join(self.directory, 'views.py')
         self._write_template('blueprint_views.jnj',
                              blueprint_views_py,
+                             blueprint = self.as_dict(),
+                             project   = self.app.project.as_dict())
+
+    def create_views(self):
+        blueprint_forms_py = os.path.join(self.directory, 'forms.py')
+        self._write_template('blueprint_forms.jnj',
+                             blueprint_forms_py,
                              blueprint = self.as_dict(),
                              project   = self.app.project.as_dict())
 
@@ -440,6 +452,14 @@ Creates scaffolding and boilerplate for a Flask application.
                         nargs   = '?',
                         choices = SUPPORTED_ORMS,
                         help    = "The ORM you will use")
+    parser.add_argument('--forms',
+                        action  = 'store_true',
+                        default = True,
+                        help    = "Use Flask-WTF forms")
+    parser.add_argument('--templates',
+                        action  = 'store_true',
+                        default = True,
+                        help    = "Use Jinja2 templates")
     return parser.parse_args()
 
 
@@ -448,9 +468,11 @@ def main():
 
     project = Project(args.project,
                       *args.blueprints,
-                      models  = args.models,
-                      db_type = args.db_type,
-                      db_orm  = args.db_orm)
+                      models    = args.models,
+                      db_type   = args.db_type,
+                      db_orm    = args.db_orm,
+                      forms     = args.forms,
+                      templates = args.templates)
     project.spill()
 
 
