@@ -30,9 +30,9 @@ setup(
     license='MIT',
 
     classifiers=[
-        'Development Status :: 1 - VERY Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Web Tools',
+        'Framework :: Flask',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
     ],
