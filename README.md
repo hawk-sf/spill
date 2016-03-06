@@ -26,33 +26,33 @@ creates:
                 |-- views.py
         |-- /templates
 
-## Usage ##:
+## Usage ##
 
-usage: spill [-h] [-b BLUEPRINTS [BLUEPRINTS ...]] [-m MODELS [MODELS ...]]
-             [--db-type [{sqlite,mysql,mongodb}]]
-             [--db-orm [{sqlalchemy,mongoengine}]] [--no-forms]
-             [--no-templates]
-             [project]
+    usage: spill [-h] [-b BLUEPRINTS [BLUEPRINTS ...]] [-m MODELS [MODELS ...]]
+                 [--db-type [{sqlite,mysql,mongodb}]]
+                 [--db-orm [{sqlalchemy,mongoengine}]] [--no-forms]
+                 [--no-templates]
+                 [project]
 
-Creates scaffolding and boilerplate for a Flask application.
+    Creates scaffolding and boilerplate for a Flask application.
 
-positional arguments:
-  project               Name of Flask project to spill. If no project
-                        specified, will assume CWD is the project directory.
+    positional arguments:
+      project               Name of Flask project to spill. If no project
+                            specified, will assume CWD is the project directory.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -b BLUEPRINTS [BLUEPRINTS ...], --blueprints BLUEPRINTS [BLUEPRINTS ...]
-                        A list of blueprints to create (Defaults: 'main' and
-                        'api')
-  -m MODELS [MODELS ...], --models MODELS [MODELS ...]
-                        A list of model objects
-  --db-type [{sqlite,mysql,mongodb}]
-                        The type of database you will use
-  --db-orm [{sqlalchemy,mongoengine}]
-                        The ORM you will use
-  --no-forms            No Flask-WTF forms
-  --no-templates        No Jinja2 templates
+    optional arguments:
+      -h, --help            show this help message and exit
+      -b BLUEPRINTS [BLUEPRINTS ...], --blueprints BLUEPRINTS [BLUEPRINTS ...]
+                            A list of blueprints to create (Defaults: 'main' and
+                            'api')
+      -m MODELS [MODELS ...], --models MODELS [MODELS ...]
+                            A list of model objects
+      --db-type [{sqlite,mysql,mongodb}]
+                            The type of database you will use
+      --db-orm [{sqlalchemy,mongoengine}]
+                            The ORM you will use
+      --no-forms            No Flask-WTF forms
+      --no-templates        No Jinja2 templates
 
 Currently built with/for Python 2.7.
 
