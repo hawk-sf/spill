@@ -9,7 +9,6 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os     import path
-from spill  import __version__ as VERSION
 
 here = path.abspath(path.dirname(__file__))
 
@@ -19,7 +18,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='spill',
-    version=VERSION,
+    version='0.0.1a',
     description='A utility for generating Flask scaffolding and boilerplate.',
     long_description=long_description,
 
