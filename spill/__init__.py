@@ -283,7 +283,7 @@ class Blueprint(Scaffold):
                              blueprint = self.as_dict(),
                              project   = self.app.project.as_dict())
 
-    def create_views(self):
+    def create_forms(self):
         blueprint_forms_py = os.path.join(self.directory, 'forms.py')
         self._write_template('blueprint_forms.jnj',
                              blueprint_forms_py,
@@ -424,11 +424,14 @@ Creates scaffolding and boilerplate for a Flask application.
 \t\t|-- /<blueprint_1>
 \t\t\t|-- __init__.py
 \t\t\t|-- errors.py
+\t\t\t|-- forms.py
 \t\t\t|-- views.py
 \t\t|-- /<blueprint_2>
 \t\t\t|-- __init__.py
 \t\t\t|-- errors.py
+\t\t\t|-- forms.py
 \t\t\t|-- views.py
+\t|-- /templates
 """)
 
     parser.add_argument('project',
@@ -454,14 +457,12 @@ Creates scaffolding and boilerplate for a Flask application.
                         nargs   = '?',
                         choices = SUPPORTED_ORMS,
                         help    = "The ORM you will use")
-    parser.add_argument('--forms',
+    parser.add_argument('--no-forms',
                         action  = 'store_true',
-                        default = True,
-                        help    = "Use Flask-WTF forms")
-    parser.add_argument('--templates',
+                        help    = "No Flask-WTF forms")
+    parser.add_argument('--no-templates',
                         action  = 'store_true',
-                        default = True,
-                        help    = "Use Jinja2 templates")
+                        help    = "No Jinja2 templates")
     return parser.parse_args()
 
 
@@ -473,8 +474,8 @@ def main():
                       models    = args.models,
                       db_type   = args.db_type,
                       db_orm    = args.db_orm,
-                      forms     = args.forms,
-                      templates = args.templates)
+                      forms     = not args.no_forms,
+                      templates = not args.no_templates)
     project.spill()
 
 
