@@ -1,0 +1,7 @@
+from flask.ext.wtf      import Form
+from wtforms            import StringField
+from wtforms.validators import Required
+
+
+class {{ blueprint.name|capitalize }}Form(Form):
+    field = StringField(u'Field', validators=[Required()])

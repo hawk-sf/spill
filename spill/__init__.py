@@ -5,6 +5,8 @@ import argparse    as ap
 from   jinja2      import Environment, PackageLoader
 from   collections import MutableSequence
 
+__version__ = '0.0.1'
+
 
 def mkdirs(new_directory, mode=0755):
     """
