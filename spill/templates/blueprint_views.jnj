@@ -1,4 +1,6 @@
 from flask    import request, jsonify, make_response, render_template
 from .        import {{ blueprint.name }}
+{% if project.db.db_type %}
 from ..       import db
+{% endif %}
 from ..models import 

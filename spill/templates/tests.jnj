@@ -1,5 +1,5 @@
 import unittest
-from   app import create_app, db, models
+from   app import create_app, {% if project.db.db_type %}db, {% endif %}models
 
 
 class TestCase(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestCase(unittest.TestCase):
         self.client = self.app.test_client()
 
         # Create test data
-    {% if db.orm == 'sqlalchemy' %}
+    {% if project.db.orm == 'sqlalchemy' %}
         db.create_all()
         data = models
         db.session.add(data)
@@ -18,7 +18,7 @@ class TestCase(unittest.TestCase):
     {% endif %}
 
     def tearDown(self):
-    {% if db.orm == 'sqlalchemy' %}
+    {% if project.db.orm == 'sqlalchemy' %}
         db.session.remove()
         db.drop_all()
         self.app_context.pop()

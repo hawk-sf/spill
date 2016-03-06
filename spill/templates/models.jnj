@@ -1,1 +1,3 @@
+{% if project.db.db_type %}
 from app import db
+{% endif %}

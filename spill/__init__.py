@@ -257,19 +257,22 @@ class Blueprint(Scaffold):
         blueprint_init_py = os.path.join(self.directory, '__init__.py')
         self._write_template('blueprint_init.jnj',
                              blueprint_init_py,
-                             blueprint = self.as_dict())
+                             blueprint = self.as_dict(),
+                             project   = self.app.project.as_dict())
 
     def create_errors(self):
         blueprint_errors_py = os.path.join(self.directory, 'errors.py')
         self._write_template('blueprint_errors.jnj',
                              blueprint_errors_py,
-                             blueprint = self.as_dict())
+                             blueprint = self.as_dict(),
+                             project   = self.app.project.as_dict())
 
     def create_views(self):
         blueprint_views_py = os.path.join(self.directory, 'views.py')
         self._write_template('blueprint_views.jnj',
                              blueprint_views_py,
-                             blueprint = self.as_dict())
+                             blueprint = self.as_dict(),
+                             project   = self.app.project.as_dict())
 
     def spill(self):
         self.create_init()
