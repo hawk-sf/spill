@@ -1,5 +1,5 @@
 from flask import jsonify, make_response
-from .     import {{ blueprint.name }}
+from . import {{ blueprint.name }}
 
 
 @{{ blueprint.name }}.app_errorhandler(404)

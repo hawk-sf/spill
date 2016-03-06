@@ -21,7 +21,7 @@ def mkdirs(new_directory, mode=0755):
 JINJA_ENV      = Environment(loader        = PackageLoader('spill', 'templates'),
                              trim_blocks   = True,
                              lstrip_blocks = True)
-SUPPORTED_DBS  = ['sqlite', 'mysql', 'mongo']
+SUPPORTED_DBS  = ['sqlite', 'mysql', 'mongodb']
 SUPPORTED_ORMS = ['sqlalchemy', 'mongoengine']
 
 
@@ -69,9 +69,10 @@ class Project(Scaffold):
     def __init__(self, project_directory, *blueprints, **kwargs):
         super(Project, self).__init__(project_directory)
         self.name       = os.path.basename(self.directory)
+        self.blueprints = blueprints
+        self.models     = kwargs.get('models')
         self.forms      = kwargs.get('forms')
         self.templates  = kwargs.get('templates')
-        self.blueprints = blueprints
         self.config     = kwargs
         self.initialize_db()
         self.initialize_app()
@@ -109,6 +110,7 @@ class Project(Scaffold):
                 'name':      self.name,
                 'db':        self.db.as_dict(),
                 'app':       self.app.as_dict(),
+                'models':    self.models,
                 'forms':     self.forms,
                 'templates': self.templates
                }
@@ -416,12 +418,18 @@ Creates scaffolding and boilerplate for a Flask application.
 """)
 
     parser.add_argument('project',
-                        default = '.',
+                        nargs   = '?',
+                        default = os.getcwd(),
                         help    = "Name of Flask project to spill. If no project specified, will assume CWD is the project directory.")
     parser.add_argument('-b', '--blueprints',
+                        nargs   = '+',
+                        default = ['main', 'api'],
+                        dest    = 'blueprints',
+                        help    = "A list of blueprints to create (Defaults: 'main' and 'api')")
+    parser.add_argument('-m', '--models',
                         nargs = '+',
-                        dest  = 'blueprints',
-                        help  = "A list of blueprints to create")
+                        dest  = 'models',
+                        help  = "A list of model objects")
     parser.add_argument('--db-type',
                         dest    = 'db_type',
                         nargs   = '?',
@@ -440,6 +448,7 @@ def main():
 
     project = Project(args.project,
                       *args.blueprints,
+                      models  = args.models,
                       db_type = args.db_type,
                       db_orm  = args.db_orm)
     project.spill()

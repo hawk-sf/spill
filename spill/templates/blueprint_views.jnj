@@ -1,6 +1,29 @@
-from flask    import request, jsonify, make_response, render_template
-from .        import {{ blueprint.name }}
-{% if project.db.db_type %}
-from ..       import db
+from flask import request, jsonify, make_response, render_template
+from . import {{ blueprint.name }}
+{% if project.db.db_type != None %}
+from .. import db
 {% endif %}
-from ..models import 
+from ..models import {% for model in project.models %}{{ model|capitalize }}, {% endfor %}
+
+
+{% for model in project.models %}
+@{{ blueprint.name }}.route('/{{ model|lower }}s/<id>', methods=['GET'])
+def get_{{ model|lower }}(id):
+    pass
+
+
+@{{ blueprint.name }}.route('/{{ model|lower }}s', methods=['POST'])
+def post_{{ model|lower }}():
+    pass
+
+
+@{{ blueprint.name }}.route('/{{ model|lower }}s/<id>', methods=['PUT'])
+def update_{{ model|lower }}(id):
+    pass
+
+
+@{{ blueprint.name }}.route('/{{ model|lower }}s/<id>', methods=['DELETE'])
+def delete_{{ model|lower }}(id):
+    pass
+
+{% endfor %}

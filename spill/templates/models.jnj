@@ -1,3 +1,29 @@
-{% if project.db.db_type %}
+{% if project.db.db_type != None %}
 from app import db
 {% endif %}
+from json import dumps
+
+{% for model in project.models %}
+class {{ model|capitalize }}({% if project.db.orm == 'sqlalchemy' %}db.Model{% elif project.db.orm == 'mongoengine' %}db.Document{% endif %}):
+    """{{ model|capitalize }} docstring"""
+    {% if project.db.orm == 'sqlalchemy' %}
+    __tablename__ = '{{ model|lower }}s'
+
+    id = db.Column(db.Integer, primary_key=True)
+    {% elif project.db.orm == 'mongoengine' %}
+    meta = {
+            'collection' : '{{ model|lower }}s',
+           }
+    {% endif %}    
+
+    def __repr__(self):
+        return "{{ model|capitalize }}(id=%s)" % (self.id)
+
+    def as_dict(self):
+    	raise NotImplementedError
+
+    def as_json(self):
+        return dumps(self.as_dict(), ensure_ascii=False).encode('utf8')
+
+
+{% endfor %}

@@ -1,5 +1,5 @@
 import unittest
-from   app import create_app, {% if project.db.db_type %}db, {% endif %}models
+from   app import create_app, {% if project.db.db_type != None %}db, {% endif %}models
 
 
 class TestCase(unittest.TestCase):
